@@ -24,18 +24,6 @@ function checkSelections() {
     } else {
         playButton.disabled = false;
     }
-    updateBotName();
-}
-function updateBotName() {
-    const opponentsValue = opponentsSelect.value;
-    const difficultyValue = difficultySelect.value;
-    const difficultyText = difficultyValue.charAt(0).toUpperCase() + difficultyValue.slice(1);  // Capitalize o primeiro caractere
-
-    if (opponentsValue === 'oneplayer') {
-        opponentName.textContent = "Bot " + difficultyText;
-    } else {
-        opponentName.textContent = "Player1";
-    }
 }
 
 window.onload = () => {
@@ -46,7 +34,10 @@ window.onload = () => {
     const rulesbox = document.querySelector('.rules');
     const mainbox = document.querySelector('.box-main');
     const scorebox = document.querySelector('.score');
+    const boardSizeSelect = document.getElementById('board_size');
     
+    const firstSecondSelect = document.getElementById('firstsecond');
+    const  gameMessages = document.getElementById('gameMessage');
     
     // Event listener for the login/register form
     document.getElementById('loginForm').addEventListener('submit', function(event) {
@@ -122,9 +113,7 @@ window.onload = () => {
         }
     });
     //jogar
-    const boardSizeSelect = document.getElementById('board_size');
     opponentsSelect = document.getElementById('oponents');
-    const firstSecondSelect = document.getElementById('firstsecond');
     difficultySelect = document.getElementById('difficulty');
 
     boardSizeSelect.addEventListener('change', checkSelections);
@@ -135,24 +124,33 @@ window.onload = () => {
     
     playButton.addEventListener('click', function(){
         game = new Game();
-
         checkSelections();
         
         if (mainbox.style.display !== 'none') {
             board.style.display = 'grid';
             resetButton.style.display = 'block';
+            document.getElementById('gameMessage').style.display = 'block'; // Mostra a mensagem
+            game.updateGameMessage('placementWhite'); // Inicia com a mensagem das Brancas, por exemplo
         }else{
             if (rulesbox.style.display !== 'none') {
                 rulesbox.style.display = 'none';
-                mainbox.style.display = 'grid';
+                mainbox.style.display = 'block';
+                board.style.display = 'grid';
+                resetButton.style.display = 'block';
+                document.getElementById('gameMessage').style.display = 'block'; // Mostra a mensagem
+                game.updateGameMessage('placementWhite'); // Inicia com a mensagem das Brancas, por exemplo
             }
         
             if (scorebox.style.display !== 'none') {
                 scorebox.style.display = 'none';
-                mainbox.style.display = 'grid';
+                mainbox.style.display = 'block';
+                board.style.display = 'grid';
+                resetButton.style.display = 'block';
+                document.getElementById('gameMessage').style.display = 'block'; // Mostra a mensagem
+                game.updateGameMessage('placementWhite'); // Inicia com a mensagem das Brancas, por exemplo
             }
         }
-        
+
         // Jogar
         // Call the joinGame method and handle the result
         game.joinGame(document.getElementById('username').value, document.getElementById('password').value)
@@ -180,22 +178,11 @@ window.onload = () => {
         opponentsSelect.disabled = true;
         firstSecondSelect.disabled = true;
         difficultySelect.disabled = true;
+        playButton.disabled = true;
 
 
         pieces.style.display = 'flex';
 
-        const playerBox = document.querySelector('.player-box');
-        playerBox.style.display = 'flex';
-    
-        const firstSecondValue = firstSecondSelect.value;
-        if (firstSecondValue === 'white') {
-            playerName.textContent = "Player1";
-            opponentName.textContent = "Bot";
-            updateBotName();
-        } else if (firstSecondValue === 'black') {
-            playerName.textContent = "Bot";
-            opponentName.textContent = "Player1";
-        }
 
     });
     // reset
@@ -211,11 +198,13 @@ window.onload = () => {
         opponentsSelect.disabled = false;
         firstSecondSelect.disabled = false;
         difficultySelect.disabled = false;
+        playButton.disabled =false;
         pieces.style.display= 'none'; 
         game.pieces.initializePieces();
         resetButton.style.display = 'none';
         const playerBox = document.querySelector('.player-box');
-        playerBox.style.display = 'none';
+        gameMessages.style.display = 'none';
+        gameMessages.style.fontSize = '25px';
 
         game.leaveGame()
         .then(data => {
@@ -225,30 +214,9 @@ window.onload = () => {
         .catch(error => {
             console.error('Failed to leave the game:', error);
         });
-    });
-    const opponentDifficulty = document.getElementById('opponent-difficulty');
 
+        checkSelections();
     
-
-
-// Defina o valor inicial
-opponentsSelect.dispatchEvent(new Event('change'));
+    });
     
 };
-
-//overlays dos jogadores
-
-const playerInfo = document.getElementById('player-info');
-const playerName = document.querySelector('.white-player .player-name');
-const playerPiece = document.getElementById('player-piece');
-
-const opponentInfo = document.getElementById('opponent-info');
-const opponentName = document.querySelector('.black-player .player-name');
-const opponentPiece = document.getElementById('opponent-piece');
-
-// Define as informações do jogador
-playerName.textContent = "Player1";  // Substitua "Seu Nome" pelo nome do jogador
-
-
-// Define as informações do oponente (pode ser outro jogador ou computador)
-opponentName.textContent = "Bot";  // Substitua "Oponente" pelo nome do oponente
