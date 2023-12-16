@@ -15,7 +15,7 @@ class game {
 
         for(let i = 0; i < this._rows; i++){
             for(let j = 0; j < this._rows; j++){
-                board[i][j] = 'n';
+                this.board[i][j] = 'n';
             }
         }
     }

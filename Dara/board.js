@@ -29,6 +29,7 @@ function checkSelections() {
 window.onload = () => {
     const instructionsButton = document.getElementById('instrbutton');
     const rankingButton = document.getElementById('rankbutton');
+    const rankingContainer = document.getElementById('rankingContainer');
     const playButton = document.getElementById('play');
     const board = document.getElementById('board');
     const rulesbox = document.querySelector('.rules');
@@ -101,17 +102,71 @@ window.onload = () => {
     });
     //pontuaçoes
     rankingButton.addEventListener('click', function() {
-        if (scorebox.style.display != 'block') {
-            scorebox.style.display = 'block';
-            mainbox.style.display = 'none';
-            rulesbox.style.display = 'none';
-            
-        } else {
-            scorebox.style.display = 'none';
-            mainbox.style.display = 'grid';
-            rulesbox.style.display = 'none';
-        }
+        const group = '24';  // Group value
+       
+    
+        // Call the getRanking function
+        game.getRanking(group, game._rows, game._cols)
+            .then(rankingData => {
+                // Process the ranking data and update the UI as needed
+                console.log('Ranking:', rankingData);
+                displayRanking(rankingData);
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error:', error);
+            });
     });
+
+
+
+
+    function getGameData(username, gameId) {
+        // Assuming you have the correct endpoint for retrieving game data
+        const url = `http://twserver.alunos.dcc.fc.up.pt:8008/update?nick=${username}&game=${gameId}`;
+
+        return fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Game data:', data);
+            // Process the data or return it as needed
+            return data;
+        })
+        .catch(error => {
+            console.error('Error getting game data:', error.message);
+            console.error(error.stack);
+            throw error;
+        });
+    }
+
+    function displayRanking(ranking) {
+        // Clear previous content in the ranking container
+        rankingContainer.innerHTML = '';
+
+        // Check if there are entries in the ranking
+        if (ranking.length > 0) {
+            // Create elements to display each ranking entry
+            ranking.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.textContent = `${entry.player}: ${entry.score}`;
+                rankingContainer.appendChild(entryElement);
+            });
+        } else {
+            // Display a message if the ranking is empty
+            rankingContainer.textContent = 'No ranking data available.';
+        }
+    }
+
     //jogar
     opponentsSelect = document.getElementById('oponents');
     difficultySelect = document.getElementById('difficulty');
@@ -218,5 +273,4 @@ window.onload = () => {
         checkSelections();
     
     });
-    
 };
